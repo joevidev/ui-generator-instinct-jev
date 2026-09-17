@@ -1,8 +1,11 @@
 export type Tone = "neutral" | "playful" | "formal";
 
-/** What the client sends: one free-text box, nothing pre-structured. */
+/** What the client sends: one free-text box, nothing pre-structured. Plus,
+ * optionally, the visitor's own TypeSafe key once they're past the demo's
+ * free quota (see `lib/rate-limit.ts`) — never persisted server-side. */
 export interface RawInput {
   text: string;
+  apiKey?: string;
 }
 
 export const EMPTY_INPUT: RawInput = { text: "" };

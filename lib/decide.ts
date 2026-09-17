@@ -91,7 +91,7 @@ function addUsage(a: { input_tokens: number; output_tokens: number }, b: { input
  *  3. only if the winner is ambiguous: a direct head-to-head tiebreak
  */
 export async function decide(input: RawInput): Promise<Decision> {
-  const client = getTypesafeClient();
+  const client = getTypesafeClient(input.apiKey);
   const usage = { input_tokens: 0, output_tokens: 0 };
   const text = input.text;
   const state = { text };

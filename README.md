@@ -28,6 +28,17 @@ pnpm dev
 
 Open `http://localhost:3000`. Without `TYPESAFE_API_KEY` set (or without remaining API credits), submitting a case returns a clean "Request failed: 500" — the real error path, not a mocked one.
 
+## Bring your own key (free quota)
+
+If you deploy this publicly, the key in `.env.local` pays for every visitor. So the first **5 generations** per visitor come out of that shared key; after that the UI asks for the visitor's own key from [console.typesafe.ai](https://console.typesafe.ai) and every further call is billed to them (`lib/rate-limit.ts`, `app/api/[[...route]]/route.ts`).
+
+Details worth knowing:
+
+- The visitor's key is kept in their browser's `localStorage` and sent per request. It is never written to disk or logged server-side, and a caller-supplied key always gets a fresh SDK client so it can't leak into another visitor's request (`lib/typesafe-client.ts`).
+- Calls made with a visitor's own key are **not** metered — only the shared key is.
+- Failed calls don't consume quota. The counter only increments on a successful decision, so a bad key or an out-of-credits account doesn't cost a generation the visitor never got.
+- **This is a cost cap, not a security boundary.** The counter is a plain cookie, so clearing cookies resets it. Signing it would add nothing, since clearing defeats a signed cookie just as easily. If you need real enforcement, put a per-IP or per-account limit in front of the route.
+
 ## How a decision is made
 
 See `lib/decide.ts`. Code never decides anything about the case itself — it only ever proposes bounded *candidates* (entity/field/icon spans in `lib/extract.ts`) for Jev to pick among. The pipeline is hierarchical and escalates only as far as it needs to:

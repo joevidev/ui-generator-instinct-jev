@@ -10,11 +10,13 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
+import { ApiKeyPanel } from "@/components/api-key-panel";
 
 export function ChatPanel() {
-  const { text, setText, submit, status, current, error } = useInstinctStore();
+  const { text, setText, submit, status, current, error, quotaExceeded, apiKey } = useInstinctStore();
   const canSubmit = text.trim().length > 0 && status !== "loading";
-  const showSuggestions = !current && text.trim().length === 0 && status !== "loading";
+  const blockedOnKey = quotaExceeded && apiKey.length === 0;
+  const showSuggestions = !current && !blockedOnKey && text.trim().length === 0 && status !== "loading";
 
   const handleSubmit = (_message: PromptInputMessage, event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -48,8 +50,9 @@ export function ChatPanel() {
           <CarouselNext className="-right-8 size-7" />
         </Carousel>
       )}
+      <ApiKeyPanel />
       <div className="mx-auto flex w-full max-w-xl flex-col gap-2">
-        {error && <p className="px-3 text-xs text-destructive">{error}</p>}
+        {error && !blockedOnKey && <p className="px-3 text-xs text-destructive">{error}</p>}
         <PromptInput
           onSubmit={handleSubmit}
           className="shadow-float rounded-3xl border-border/60 bg-card/95 backdrop-blur-md transition-shadow has-[[data-slot=input-group-control]:focus-visible]:border-ring/60 has-[[data-slot=input-group-control]:focus-visible]:ring-0"
