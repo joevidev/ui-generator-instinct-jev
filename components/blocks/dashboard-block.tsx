@@ -26,13 +26,16 @@ export function DashboardBlock({ props }: { props: DashboardBlockProps }) {
   return (
     <SidebarBlockShell props={props.sidebar}>
       <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {/* Stacked on a phone, so each stat gets the full column width: at
+              the desktop card spacing three of these would be ~250px tall each
+              and push the chart and table out of the block entirely. */}
           {props.stats.map((s) => (
-            <Card key={s.label}>
+            <Card key={s.label} className="gap-1 py-3 sm:gap-(--card-spacing) sm:py-(--card-spacing)">
               <CardHeader className="pb-1">
                 <CardTitle className="text-xs font-normal text-muted-foreground">{s.label}</CardTitle>
               </CardHeader>
-              <CardContent className="text-xl font-semibold tabular-nums">{s.value}</CardContent>
+              <CardContent className="text-lg font-semibold tabular-nums sm:text-xl">{s.value}</CardContent>
             </Card>
           ))}
         </div>

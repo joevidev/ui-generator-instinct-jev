@@ -145,15 +145,18 @@ export function SidebarBlockShell({
   );
 
   return (
-    <SidebarProvider className="min-h-[420px] [&_[data-slot=sidebar-container]]:!absolute [&_[data-slot=sidebar-container]]:!h-full">
-      <div className="relative flex h-[420px] w-full overflow-hidden rounded-[calc(var(--radius)*1.2)] border border-border">
+    // Taller than 420px on a phone: the content inside is a stacked column
+    // there, so a fixed desktop height would show only the first two stats and
+    // leave the space the canvas actually has empty above and below.
+    <SidebarProvider className="min-h-[min(60dvh,32rem)] sm:min-h-[420px] [&_[data-slot=sidebar-container]]:!absolute [&_[data-slot=sidebar-container]]:!h-full">
+      <div className="relative flex h-[min(60dvh,32rem)] w-full overflow-hidden rounded-[calc(var(--radius)*1.2)] border border-border sm:h-[420px]">
         {sidebar}
         <SidebarInset className="flex-1 overflow-auto">
           <header className="flex h-12 items-center gap-2 border-b border-border px-4">
             <SidebarTrigger />
             <span className="text-sm font-medium">{orgName}</span>
           </header>
-          <div className="p-4">{children}</div>
+          <div className="p-3 sm:p-4">{children}</div>
         </SidebarInset>
       </div>
     </SidebarProvider>

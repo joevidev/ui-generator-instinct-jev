@@ -45,11 +45,13 @@ export function AuthBlock({ props }: { props: AuthBlockProps }) {
 
   if (layout === "split-image") {
     return (
-      <div className="grid min-h-[420px] grid-cols-2 overflow-hidden rounded-[calc(var(--radius)*1.2)] border border-border">
-        <div className="flex items-center justify-center p-8">{form}</div>
-        <div className="flex items-center justify-center bg-muted text-sm text-muted-foreground">
+      // Single column on a phone, and the brand panel becomes a short band
+      // above the form instead of a half-width column ~180px wide.
+      <div className="grid min-h-[420px] grid-cols-1 overflow-hidden rounded-[calc(var(--radius)*1.2)] border border-border sm:grid-cols-2">
+        <div className="flex h-24 items-center justify-center bg-muted text-sm text-muted-foreground sm:order-last sm:h-auto">
           {appName} brand image
         </div>
+        <div className="flex items-center justify-center p-5 sm:p-8">{form}</div>
       </div>
     );
   }
@@ -57,7 +59,7 @@ export function AuthBlock({ props }: { props: AuthBlockProps }) {
   return (
     <div
       className={cn(
-        "flex min-h-[420px] items-center justify-center rounded-[calc(var(--radius)*1.2)] border border-border p-8",
+        "flex min-h-[420px] items-center justify-center rounded-[calc(var(--radius)*1.2)] border border-border p-5 sm:p-8",
         background === "muted" && "bg-muted"
       )}
     >

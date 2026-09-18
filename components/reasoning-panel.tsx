@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import type { Decision } from "@/lib/decide";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 const STEP_MS = 30;
@@ -10,7 +11,10 @@ const STEP_MS = 30;
 function Row({ index, children }: { index: number; children: React.ReactNode }) {
   return (
     <motion.div
-      className="flex items-center justify-between"
+      // The value side truncates rather than wrapping: these rows stay
+      // scannable as label/value pairs even at ~320px, where several values
+      // (entity names, style triplets) are wider than the space left over.
+      className="flex items-center justify-between gap-3 [&>span:first-child]:shrink-0 [&>span:last-child]:truncate [&>span:last-child]:text-right"
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: (index * STEP_MS) / 1000, ease: EASE }}
@@ -29,7 +33,7 @@ function Bar({ label, value, index }: { label: string; value: number; index: num
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay, ease: EASE }}
     >
-      <span className="w-32 shrink-0 truncate text-muted-foreground">{label}</span>
+      <span className="w-20 shrink-0 truncate text-muted-foreground sm:w-32">{label}</span>
       <div className="h-1.5 flex-1 rounded-full bg-muted">
         <motion.div
           className="h-1.5 rounded-full bg-foreground"
@@ -43,20 +47,28 @@ function Bar({ label, value, index }: { label: string; value: number; index: num
   );
 }
 
-export function ReasoningPanel({ decision }: { decision: Decision }) {
+export function ReasoningPanel({ decision, bare = false }: { decision: Decision; bare?: boolean }) {
   const siblingProbs = Object.entries(decision.probabilities).sort((a, b) => b[1] - a[1]).slice(0, 4);
   const totalMs = decision.latencyMs.call1 + decision.latencyMs.call2 + (decision.latencyMs.call3 ?? 0) + (decision.latencyMs.compose ?? 0);
 
   let i = 0;
 
   return (
-    <Card key={`${decision.componentId}-${decision.latencyMs.call1}`} className="shadow-float w-full border border-border/60">
-      <CardHeader>
-        <CardTitle className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-          How Jev got here
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4 font-mono text-sm">
+    <Card
+      key={`${decision.componentId}-${decision.latencyMs.call1}`}
+      // Card carries its outline as `ring-1`, not a border, so `bare` has to
+      // clear the ring — `border-0` alone leaves the hairline visible.
+      className={cn("w-full", bare ? "gap-0 bg-transparent py-0 ring-0" : "shadow-float border border-border/60")}
+    >
+      {/* In `bare` mode the surrounding sheet already carries this title. */}
+      {!bare && (
+        <CardHeader>
+          <CardTitle className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+            How Jev got here
+          </CardTitle>
+        </CardHeader>
+      )}
+      <CardContent className={cn("flex flex-col gap-4 font-mono text-sm", bare && "px-0")}>
         <Row index={i++}>
           <span className="text-muted-foreground">{decision.kind === "block" ? "block" : "component"}</span>
           <span>{decision.label}</span>

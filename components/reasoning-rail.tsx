@@ -4,13 +4,14 @@ import { useInstinctStore } from "@/lib/store";
 import { ReasoningPanel } from "@/components/reasoning-panel";
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
-export function ReasoningRail() {
+export function ReasoningRail({ bare = false }: { bare?: boolean }) {
   const { current, status } = useInstinctStore();
 
   if (status === "loading") {
     return (
-      <Card className="shadow-float w-full border border-border/60">
+      <Card className={cn("w-full", bare ? "bg-transparent ring-0" : "shadow-float border border-border/60")}>
         <CardContent className="flex flex-col items-center gap-2 py-10">
           <Shimmer className="font-mono text-xs uppercase tracking-wider" duration={1.1}>
             Jev is reading the case…
@@ -28,5 +29,5 @@ export function ReasoningRail() {
     );
   }
 
-  return <ReasoningPanel decision={current.decision} />;
+  return <ReasoningPanel decision={current.decision} bare={bare} />;
 }

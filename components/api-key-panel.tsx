@@ -63,7 +63,9 @@ export function ApiKeyPanel() {
         to keep going. It stays in this browser and is sent only with your own requests.
       </p>
       <form
-        className="flex items-center gap-2"
+        // Stacks on a phone: input + Save + Cancel on one row leaves the input
+        // too narrow to see any of a `ts_...` key.
+        className="flex flex-col gap-2 sm:flex-row sm:items-center"
         onSubmit={(e) => {
           e.preventDefault();
           const next = draft.trim();
@@ -81,14 +83,16 @@ export function ApiKeyPanel() {
           autoComplete="off"
           className="flex-1 font-mono text-xs"
         />
-        <Button type="submit" size="sm" disabled={draft.trim().length === 0}>
-          Save
-        </Button>
-        {(hasKey || open) && (
-          <Button type="button" size="sm" variant="ghost" onClick={() => { setOpen(false); setDraft(""); }}>
-            Cancel
+        <div className="flex items-center gap-2">
+          <Button type="submit" size="sm" disabled={draft.trim().length === 0} className="flex-1 sm:flex-none">
+            Save
           </Button>
-        )}
+          {(hasKey || open) && (
+            <Button type="button" size="sm" variant="ghost" onClick={() => { setOpen(false); setDraft(""); }}>
+              Cancel
+            </Button>
+          )}
+        </div>
       </form>
     </div>
   );

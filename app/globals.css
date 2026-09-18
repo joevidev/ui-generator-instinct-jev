@@ -48,6 +48,14 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+@theme {
+  /* The width at which the two floating rails can coexist with the artifact
+     instead of squeezing it: 240 + 380 of rail plus their gutters leaves the
+     canvas ~590px here, and less than that is worse than putting the rails in
+     bottom sheets. Drives the `rails:` variant used across the shell. */
+  --breakpoint-rails: 90rem;
+}
+
 :root {
   /* Base default: Geist. `--font-sans`/`--font-mono` are never set by the Geist
      next/font call itself, only `--font-geist-sans`/`--font-geist-mono` are, so
@@ -185,6 +193,15 @@
 [data-density="compact"] { --canvas-padding: 1rem; --canvas-gap: 0.5rem; }
 [data-density="comfortable"] { --canvas-padding: 2rem; --canvas-gap: 1rem; }
 [data-density="spacious"] { --canvas-padding: 3rem; --canvas-gap: 1.5rem; }
+
+/* On a phone the artifact only has ~350px to work with, so a 3rem breathing
+   ring would spend a third of it on padding. Density stays a relative scale,
+   just compressed to what the width can actually carry. */
+@media (width < 40rem) {
+  [data-density="compact"] { --canvas-padding: 0.75rem; }
+  [data-density="comfortable"] { --canvas-padding: 1.25rem; }
+  [data-density="spacious"] { --canvas-padding: 1.75rem; }
+}
 
 [data-radius="sharp"] { --radius: 0rem; }
 [data-radius="soft"] { --radius: 0.625rem; }

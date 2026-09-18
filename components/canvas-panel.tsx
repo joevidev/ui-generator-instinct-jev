@@ -132,12 +132,13 @@ export function CanvasPanel() {
         // Asymmetric on purpose: the floating composer sits over the bottom
         // ~150px, so a true geometric center reads as low. Biasing padding
         // toward the bottom shifts the visible center up to compensate.
-        "mx-auto flex min-h-full flex-1 items-center justify-center pt-8 pb-56",
-        // Centered on the full viewport now (see app/page.tsx), so a wide block
-        // needs its own ceiling once the window narrows enough that 48rem
-        // would reach under the floating side rails — min() picks whichever
-        // is smaller instead of always assuming there's 48rem of clear width.
-        isBlock ? "w-full max-w-[min(48rem,calc(100vw-53rem))]" : "w-full max-w-lg"
+        "mx-auto flex min-h-full flex-1 items-center justify-center px-4 pt-6 pb-44 rails:px-0 rails:pt-8 rails:pb-56",
+        // Below the rails breakpoint there's nothing to clear (they're bottom
+        // sheets instead), so a block gets the whole column up to its own 48rem
+        // ceiling. Once the rails are floating it needs a second ceiling for
+        // when the window is narrow enough that 48rem would reach under one —
+        // min() picks whichever is smaller.
+        isBlock ? "w-full max-w-3xl rails:max-w-[min(48rem,calc(100vw-53rem))]" : "w-full max-w-lg"
       )}
     >
       {status === "loading" ? (
@@ -181,7 +182,7 @@ export function CanvasPanel() {
           </div>
 
           {showCode ? (
-            <pre className="max-h-[28rem] w-full overflow-auto rounded-2xl border border-border/60 bg-muted/40 p-4 font-mono text-xs leading-relaxed text-foreground/90">
+            <pre className="max-h-[55vh] w-full overflow-auto rounded-2xl border border-border/60 bg-muted/40 p-3 font-mono text-[11px] leading-relaxed text-foreground/90 sm:p-4 sm:text-xs rails:max-h-[28rem]">
               {decisionToCode(decision)}
             </pre>
           ) : isBlock ? (
