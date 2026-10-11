@@ -19,6 +19,14 @@ export interface QuotaError {
   limit: number;
 }
 
+/** Response header carrying the visitor's remaining free generations. The
+ * usage cookie is httpOnly, so the client can't read the count itself. */
+export const REMAINING_HEADER = "X-Free-Remaining";
+
+export function remainingFree(used: number): number {
+  return Math.max(0, FREE_GENERATIONS - used);
+}
+
 export function parseUsage(raw: string | undefined): number {
   const n = Number(raw);
   return Number.isInteger(n) && n >= 0 ? n : 0;

@@ -5,11 +5,23 @@ import { getCookie, setCookie } from "hono/cookie";
 import { decide } from "@/lib/decide";
 import { CATALOG } from "@/lib/catalog";
 import type { RawInput } from "@/lib/intake";
-import { FREE_GENERATIONS, USAGE_COOKIE, parseUsage, type QuotaError } from "@/lib/rate-limit";
+import {
+  FREE_GENERATIONS,
+  REMAINING_HEADER,
+  USAGE_COOKIE,
+  parseUsage,
+  remainingFree,
+  type QuotaError,
+} from "@/lib/rate-limit";
 
 const app = new Hono().basePath("/api");
 
 app.get("/catalog", (c) => c.json({ catalog: CATALOG }));
+
+app.get("/quota", (c) => {
+  c.header("Cache-Control", "no-store");
+  return c.json({ remaining: remainingFree(parseUsage(getCookie(c, USAGE_COOKIE))), limit: FREE_GENERATIONS });
+});
 
 app.post("/decide", async (c) => {
   const input = (await c.req.json()) as RawInput;
@@ -55,6 +67,7 @@ app.post("/decide", async (c) => {
       sameSite: "Lax",
       maxAge: 60 * 60 * 24 * 30,
     });
+    c.header(REMAINING_HEADER, String(remainingFree(used + 1)));
   }
 
   return c.json(decision);

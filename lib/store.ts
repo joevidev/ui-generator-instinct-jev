@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Decision } from "./decide";
-import { FREE_GENERATIONS } from "./rate-limit";
+import { FREE_GENERATIONS, REMAINING_HEADER } from "./rate-limit";
 
 export interface HistoryEntry {
   id: string;
@@ -21,8 +21,11 @@ interface InstinctState {
    * server-side. */
   apiKey: string;
   quotaExceeded: boolean;
+  /** Free generations left on the shared key; null until the server has said. */
+  freeRemaining: number | null;
   setText: (text: string) => void;
   setApiKey: (apiKey: string) => void;
+  loadQuota: () => Promise<void>;
   submit: () => Promise<void>;
   view: (id: string) => void;
   remove: (id: string) => void;
@@ -38,10 +41,22 @@ export const useInstinctStore = create<InstinctState>()(
       error: null,
       apiKey: "",
       quotaExceeded: false,
+      freeRemaining: null,
 
       setText: (text) => set({ text }),
 
       setApiKey: (apiKey) => set({ apiKey, quotaExceeded: false, error: null }),
+
+      loadQuota: async () => {
+        try {
+          const res = await fetch("/api/quota", { cache: "no-store" });
+          if (!res.ok) return;
+          const { remaining } = (await res.json()) as { remaining: number };
+          set({ freeRemaining: remaining });
+        } catch {
+          // The badge is informational; stay hidden rather than surface an error.
+        }
+      },
 
       submit: async () => {
         const { text, apiKey } = get();
@@ -56,6 +71,7 @@ export const useInstinctStore = create<InstinctState>()(
             set({
               status: "error",
               quotaExceeded: true,
+              freeRemaining: 0,
               error: `Free demo limit reached (${FREE_GENERATIONS} generations). Add your own TypeSafe API key to keep going.`,
             });
             return;
@@ -66,6 +82,8 @@ export const useInstinctStore = create<InstinctState>()(
             return;
           }
           if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+          const remaining = res.headers.get(REMAINING_HEADER);
+          if (remaining !== null) set({ freeRemaining: Number(remaining) });
           const decision: Decision = await res.json();
           const entry: HistoryEntry = {
             id: crypto.randomUUID(),
