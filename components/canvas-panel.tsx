@@ -119,11 +119,20 @@ export function CanvasPanel() {
     setCopied(false);
   }
 
-  const handleCopy = () => {
+  const [copyFailed, setCopyFailed] = useState(false);
+
+  const handleCopy = async () => {
     if (!decision) return;
-    navigator.clipboard.writeText(decisionToCode(decision));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    try {
+      await navigator.clipboard.writeText(decisionToCode(decision));
+      setCopyFailed(false);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setCopied(false);
+      setCopyFailed(true);
+      setTimeout(() => setCopyFailed(false), 2500);
+    }
   };
 
   return (
@@ -172,7 +181,7 @@ export function CanvasPanel() {
                   <Copy className={cn("absolute size-3 transition-all duration-150", copied ? "scale-[0.25] opacity-0 blur-[4px]" : "scale-100 opacity-100 blur-none")} />
                   <Check className={cn("absolute size-3 transition-all duration-150", copied ? "scale-100 opacity-100 blur-none" : "scale-[0.25] opacity-0 blur-[4px]")} />
                 </span>
-                {copied ? "Copied" : "Copy"}
+                <span role="status">{copied ? "Copied to clipboard" : copyFailed ? "Couldn't copy" : "Copy"}</span>
               </button>
             )}
             <label className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
