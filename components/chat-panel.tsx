@@ -11,6 +11,7 @@ import {
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { ApiKeyPanel } from "@/components/api-key-panel";
+import { FreeGenerationsBadge } from "@/components/free-generations-badge";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export function ChatPanel() {
@@ -55,6 +56,7 @@ export function ChatPanel() {
           <CarouselNext className="-right-8 hidden size-7 rails:flex" />
         </Carousel>
       )}
+      <FreeGenerationsBadge />
       <ApiKeyPanel />
       <div className="mx-auto flex w-full max-w-xl flex-col gap-2">
         {error && !blockedOnKey && <p className="px-3 text-xs text-destructive">{error}</p>}
